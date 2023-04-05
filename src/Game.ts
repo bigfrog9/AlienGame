@@ -7,13 +7,22 @@ import "createjs";
 import { STAGE_WIDTH, STAGE_HEIGHT, FRAME_RATE, ASSET_MANIFEST } from "./Constants";
 import { AssetManager } from "./AssetManager";
 
+import { Player } from "./Player";
+
 // game setup variables
 let stage:createjs.StageGL;
 let canvas:HTMLCanvasElement;
 let assetManager:AssetManager;
 
+let player:Player
+
 // game object variables
 // ...
+
+let leftKey:boolean=false;
+let upKey:boolean=false;
+let rightKey:boolean=false;
+let downKey:boolean=false;
 
 // --------------------------------------------------- event handler
 function onReady(e:createjs.Event):void {
@@ -26,6 +35,39 @@ function onReady(e:createjs.Event):void {
     createjs.Ticker.framerate = FRAME_RATE;
     createjs.Ticker.on("tick", onTick);        
     console.log(">> game ready");
+}
+
+function readKeys(){
+    if (leftKey){
+        player.direction=0;
+    }
+    else if (upKey){
+        player.direction=1;
+    }
+    else if(rightKey){
+        player.direction=2;
+    }
+    else if(downKey){
+        player.direction=3;
+    }
+}
+
+function onKeyDown(e:KeyboardEvent):void {
+    if (e.key == "ArrowLeft") leftKey = true;
+    else if (e.key == "ArrowRight") rightKey = true;
+    else if (e.key == "ArrowUp") upKey = true;
+    else if (e.key == "ArrowDown") downKey = true;
+}
+
+function onKeyUp(e:KeyboardEvent):void{
+    if (e.key == "ArrowLeft") leftKey = false;
+    else if (e.key == "ArrowRight") rightKey = false;
+    else if (e.key == "ArrowUp") upKey = false;
+    else if (e.key == "ArrowDown") downKey = false;
+}
+
+function collisionUpdate():void{
+
 }
 
 function onTick(e:createjs.Event) {

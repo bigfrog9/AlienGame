@@ -13,8 +13,21 @@ export const ASSET_MANIFEST:Object[] = [
    
    {
         type:"image",
-        src:"./lib/spritesheets/AlienGame.png",
+        src:"./lib/Spritesheet/AlienGame.png",
         id:"Sprites",
+        data:0
+   },
+   {
+        type:"json",
+        src:"./lib/Spritesheet/Background.json",
+        id:"BG",
+        data:0
+   },
+   
+   {
+        type:"image",
+        src:"./lib/Spritesheet/Background.png",
+        id:"BG",
         data:0
    }
 ];

@@ -1,0 +1,26 @@
+{
+
+"images": [
+    "Buttons.png"
+],
+
+"framerate": 30,
+"frames": [
+    [1, 1, 200, 100, 0, 0, 0],
+    [203, 1, 200, 100, 0, 0, 0],
+    [1, 103, 200, 100, 0, 0, 0],
+    [203, 103, 200, 100, 0, 0, 0],
+    [1, 205, 200, 100, 0, 0, 0],
+    [203, 205, 200, 100, 0, 0, 0]
+],
+
+"animations": {
+    "Buttons": { "frames": [0, 1, 2, 3, 4, 5] }
+},
+
+"texturepacker": [
+        "SmartUpdateHash: $TexturePacker:SmartUpdate:675046027ecdb9e0cf445ca1af678adb:c5f5825e894f874620381409469e85e6:3927448dce5de7869762a67ec500bb79$",
+        "Created with TexturePacker (https://www.codeandweb.com/texturepacker) for EaselJS"
+]
+
+}

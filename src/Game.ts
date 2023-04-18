@@ -12,12 +12,14 @@ import { Player } from "./Player";
 import { Objects } from "./Objects";
 import { boxHit, pointHit } from "./Toolkit";
 import { Cloud } from "./Cloud";
-
+import { Screens } from "./Screens";
 
 // game setup variables
 let stage:createjs.StageGL;
 let canvas:HTMLCanvasElement;
 let assetManager:AssetManager;
+let screens:Screens;
+
 
 let object:Objects;
 let player:Player;
@@ -48,6 +50,7 @@ function onReady(e:createjs.Event):void {
 
     // construct game objects here
     // ...
+    createjs.Sound.play("Music");
 
     Background=assetManager.getSprite("BG","Background",0,0);
     stage.addChild(Background);
@@ -58,7 +61,8 @@ function onReady(e:createjs.Event):void {
     stage.addChild(HealthBar);
 
     cloud=new Cloud(stage,assetManager);
-    
+    screens=new Screens(stage,assetManager);
+
     Points1=assetManager.getSprite("Sprites","Numbers1",500,500);
     Points2=assetManager.getSprite("Sprites","Numbers2",500,500);
     Points3=assetManager.getSprite("Sprites","Numbers3",500,500);
@@ -67,10 +71,12 @@ function onReady(e:createjs.Event):void {
     
     object=new Objects(stage,assetManager);
     
-    player = new Player(stage,assetManager);
+    player = new Player(stage,assetManager,screens);
     player.position(300,300);
     
     player.Play();
+
+    screens.setScreen();
     
     document.onkeydown = onKeyDown;
     document.onkeyup = onKeyUp;
@@ -79,6 +85,10 @@ function onReady(e:createjs.Event):void {
     createjs.Ticker.framerate = FRAME_RATE;
     createjs.Ticker.on("tick", onTick);        
     console.log(">> game ready");
+}
+
+function loopMusic(){
+    
 }
 
 function checkHealth(){
@@ -104,41 +114,47 @@ function checkHealth(){
 }
 
 function readKeys(){
-    if (leftKey){
-        //console.log("Going left");
-        
-        player.Moving=true;
-        
-        player.direction=0;
-    }
-    else if (upKey){
-        //console.log("Going up");
-        
-        player.Moving=true;
-        
-        player.direction=1;
-    }
-    else if(rightKey){
-        //console.log("Going right");
-        
-        player.Moving=true;
-        
-        player.direction=2;
-    }
-    else if(downKey){
-        //console.log("Going down");
-        
-        player.Moving=true;
-        
-        player.direction=3;
-    }
     
-    else{
-        player.Moving=false;
+    if(player.alive&&screens.GameState==Screens.PLAYING){
+
+        
+        if (leftKey){
+            //console.log("Going left");
+          
+            player.Moving=true;
+             
+            player.direction=0;
+        }
+        else if (upKey){
+            //console.log("Going up");
+                
+            player.Moving=true;
+                
+            player.direction=1;
+        }
+        else if(rightKey){
+            //console.log("Going right");
+                
+            player.Moving=true;
+                
+            player.direction=2;
+        }
+        else if(downKey){
+            //console.log("Going down");
+                
+            player.Moving=true;
+                
+            player.direction=3;
+        }
+            
+        else{
+            player.Moving=false;
+        }
     }
 }
 
 function onKeyDown(e:KeyboardEvent):void {
+    
     if (e.key == "ArrowLeft") leftKey = true;
     else if (e.key == "ArrowRight") rightKey = true;
     else if (e.key == "ArrowUp") upKey = true;
@@ -154,7 +170,57 @@ function onKeyUp(e:KeyboardEvent):void{
 
 function collisionUpdate():void{
     
-    if (pointHit(player._sprite, cloud.Bolt1,15,50)||
+    if (player.Lives<=4&&
+    pointHit(player._sprite, object.HPickUp1,15,50)||
+    pointHit(player._sprite, object.HPickUp1,25,40)||
+    pointHit(player._sprite, object.HPickUp1,40,40)||
+    pointHit(player._sprite, object.HPickUp1,50,30)||
+    pointHit(player._sprite, object.HPickUp1,60,40)||
+    pointHit(player._sprite, object.HPickUp1,70,40)||
+    pointHit(player._sprite, object.HPickUp1,83,50)||
+    pointHit(player._sprite, object.HPickUp1,72,60)||
+    pointHit(player._sprite, object.HPickUp1,55,62)||
+    pointHit(player._sprite, object.HPickUp1,30,62)){
+
+        object.HPickUp1.y=0;
+        object.HPickUp1.x=0;
+
+        createjs.Sound.play("Health");
+
+        if(player.Lives<4){
+            player.Lives++;
+
+        }
+        
+        stage.removeChild(object.HPickUp1);
+    }
+
+    if (player.Lives<=4&&
+        pointHit(player._sprite, object.HPickUp2,15,50)||
+        pointHit(player._sprite, object.HPickUp2,25,40)||
+        pointHit(player._sprite, object.HPickUp2,40,40)||
+        pointHit(player._sprite, object.HPickUp2,50,30)||
+        pointHit(player._sprite, object.HPickUp2,60,40)||
+        pointHit(player._sprite, object.HPickUp2,70,40)||
+        pointHit(player._sprite, object.HPickUp2,83,50)||
+        pointHit(player._sprite, object.HPickUp2,72,60)||
+        pointHit(player._sprite, object.HPickUp2,55,62)||
+        pointHit(player._sprite, object.HPickUp2,30,62)){
+    
+            object.HPickUp2.y=0;
+            object.HPickUp2.x=0;
+            
+            createjs.Sound.play("Health");
+            
+            if(player.Lives<4){
+                player.Lives++;
+
+            }
+            stage.removeChild(object.HPickUp2);
+    }
+
+    if (player.state==player.OPEN &&
+        pointHit(player._sprite, cloud.Bolt1,15,50)||
     pointHit(player._sprite, cloud.Bolt1,25,40)||
     pointHit(player._sprite, cloud.Bolt1,40,40)||
     pointHit(player._sprite, cloud.Bolt1,50,30)||
@@ -165,15 +231,21 @@ function collisionUpdate():void{
     pointHit(player._sprite, cloud.Bolt1,55,62)||
     pointHit(player._sprite, cloud.Bolt1,30,62)){
 
-        if(player.Moving){
+        cloud.Bolt1.y=0;
+        cloud.Bolt1.x=0;
+
+        if(player.state==player.OPEN){
             
+            player.state=player.INVINCIBLE;
+
             stage.removeChild(cloud.Bolt1);
             player.TakeZapDam();
         }
 
     }
 
-    if (pointHit(player._sprite, cloud.Bolt2,15,50)||
+    if (player.state==player.OPEN &&
+        pointHit(player._sprite, cloud.Bolt2,15,50)||
     pointHit(player._sprite, cloud.Bolt2,25,40)||
     pointHit(player._sprite, cloud.Bolt2,40,40)||
     pointHit(player._sprite, cloud.Bolt2,50,30)||
@@ -184,15 +256,21 @@ function collisionUpdate():void{
     pointHit(player._sprite, cloud.Bolt2,55,62)||
     pointHit(player._sprite, cloud.Bolt2,30,62)){
 
-        if(player.Moving){
+        cloud.Bolt2.y=0;
+        cloud.Bolt2.x=0;
+        
+        if(player.state==player.OPEN){
             
+            player.state=player.INVINCIBLE;
+
             stage.removeChild(cloud.Bolt2);
             player.TakeZapDam();
         }
 
     }
 
-    if (pointHit(player._sprite, cloud.Bolt3,15,50)||
+    if (player.state==player.OPEN &&
+        pointHit(player._sprite, cloud.Bolt3,15,50)||
     pointHit(player._sprite, cloud.Bolt3,25,40)||
     pointHit(player._sprite, cloud.Bolt3,40,40)||
     pointHit(player._sprite, cloud.Bolt3,50,30)||
@@ -203,7 +281,12 @@ function collisionUpdate():void{
     pointHit(player._sprite, cloud.Bolt3,55,62)||
     pointHit(player._sprite, cloud.Bolt3,30,62)){
 
-        if(player.Moving){
+        cloud.Bolt3.y=0;
+        cloud.Bolt3.x=0;
+        
+        if(player.state==player.OPEN){
+            
+            player.state=player.INVINCIBLE;
             
             stage.removeChild(cloud.Bolt3);
             player.TakeZapDam();
@@ -211,7 +294,8 @@ function collisionUpdate():void{
 
     }
 
-    if (pointHit(player._sprite, cloud.Bolt4,15,50)||
+    if (player.state==player.OPEN &&
+        pointHit(player._sprite, cloud.Bolt4,15,50)||
     pointHit(player._sprite, cloud.Bolt4,25,40)||
     pointHit(player._sprite, cloud.Bolt4,40,40)||
     pointHit(player._sprite, cloud.Bolt4,50,30)||
@@ -222,15 +306,21 @@ function collisionUpdate():void{
     pointHit(player._sprite, cloud.Bolt4,55,62)||
     pointHit(player._sprite, cloud.Bolt4,30,62)){
 
-        if(player.Moving){
+
+        cloud.Bolt4.y=0;
+        cloud.Bolt4.x=0;
+        if(player.state==player.OPEN){
             
+            player.state=player.INVINCIBLE;
+
             stage.removeChild(cloud.Bolt4);
             player.TakeZapDam();
         }
 
     }
 
-    if (pointHit(player._sprite, cloud.Bolt5,15,50)||
+    if (player.state==player.OPEN &&
+        pointHit(player._sprite, cloud.Bolt5,15,50)||
     pointHit(player._sprite, cloud.Bolt5,25,40)||
     pointHit(player._sprite, cloud.Bolt5,40,40)||
     pointHit(player._sprite, cloud.Bolt5,50,30)||
@@ -241,10 +331,23 @@ function collisionUpdate():void{
     pointHit(player._sprite, cloud.Bolt5,55,62)||
     pointHit(player._sprite, cloud.Bolt5,30,62)){
 
-        if(player.Moving){
+        //console.log(player.state);
+        
+        //console.log("Lives: "+player.Lives);
+        
+        cloud.Bolt5.y=0;
+        cloud.Bolt5.x=0;
+        //console.log(player.Moving);
+
+        if(player.state==player.OPEN){
             
-            stage.removeChild(cloud.Bolt5);
+            player.state=player.INVINCIBLE;
+            //console.log(player.state);
+            player.Moving=false;
             player.TakeZapDam();
+            stage.removeChild(cloud.Bolt5);
+
+
         }
 
     }
@@ -281,9 +384,16 @@ function collisionUpdate():void{
 
         if(player.Moving){
 
+            createjs.Sound.play("Coin");
+
             stage.removeChild(object.Coin);
             addPoint();
-            object.placeCoin();
+
+            //making sure a coin doesn't appear over the win screen
+            if(screens.GameState==Screens.PLAYING){
+                object.placeCoin();
+
+            }
             
         }
     }
@@ -296,15 +406,64 @@ function onTick(e:createjs.Event) {
     // this is your game loop!
     // ...
     
-    checkHealth();
-    cloud.Roulette();
-    collisionUpdate();
 
-    cloud.Bolt1.y=cloud.Bolt1.y+cloud.BoltSpeed;
-    cloud.Bolt2.y=cloud.Bolt2.y+cloud.BoltSpeed;
-    cloud.Bolt3.y=cloud.Bolt3.y+cloud.BoltSpeed;
-    cloud.Bolt4.y=cloud.Bolt4.y+cloud.BoltSpeed;
-    cloud.Bolt5.y=cloud.Bolt5.y+cloud.BoltSpeed;
+    //rebuilding the game and resetting everything
+    if (screens.GameState==Screens.REBUILD){
+        
+        stage.removeChild(Points5);
+
+        player.alive=true;
+
+        player.Calmdown();
+        player.position(300,300);
+        player.Lives=4;
+        stage.addChild(player._sprite);
+        
+        cloud.Bolt1.x=0;
+        cloud.Bolt1.y=0;
+        cloud.Bolt2.x=0;
+        cloud.Bolt2.y=0;
+        cloud.Bolt3.x=0;
+        cloud.Bolt3.y=0;
+        cloud.Bolt4.x=0;
+        cloud.Bolt4.y=0;
+        cloud.Bolt5.x=0;
+        cloud.Bolt5.y=0;
+
+        stage.removeChild(object.HPickUp1);
+        stage.removeChild(object.HPickUp2);
+
+        numCoins=0;
+
+        stage.removeChild(object.Coin);
+
+        object.placeCoin();
+        console.log(screens.GameState);
+        screens.GameState=Screens.PLAYING;
+        console.log(screens.GameState);
+
+    }
+
+    if(screens.GameState==Screens.PLAYING){
+        checkHealth();
+        cloud.Roulette();
+        collisionUpdate();
+        screens.update();
+        
+    }
+
+
+    if(screens.GameState==Screens.PLAYING){
+
+        if (stage.contains(cloud.Bolt1))cloud.Bolt1.y=cloud.Bolt1.y+cloud.BoltSpeed;
+        if (stage.contains(cloud.Bolt2))cloud.Bolt2.y=cloud.Bolt2.y+cloud.BoltSpeed;
+        if (stage.contains(cloud.Bolt3))cloud.Bolt3.y=cloud.Bolt3.y+cloud.BoltSpeed;
+        if (stage.contains(cloud.Bolt4))cloud.Bolt4.y=cloud.Bolt4.y+cloud.BoltSpeed;
+        if (stage.contains(cloud.Bolt5))cloud.Bolt5.y=cloud.Bolt5.y+cloud.BoltSpeed;
+        
+    }
+
+    screens.update();
 
     player.Play();
 
@@ -361,6 +520,20 @@ function addPoint(){
     else if (numCoins==5){
         stage.removeChild(Points4);
         stage.addChild(Points5);
+        screens.GameState=Screens.WINSCREEN;
+        screens.setScreen();
+    }
+
+    if(numCoins==1){
+        object.placeHealth1();
+    }
+
+    if(numCoins==3){
+        object.placeHealth2();
+    }
+
+    if (numCoins>=5){
+        screens.GameState=Screens.WINSCREEN;
     }
 }
 

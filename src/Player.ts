@@ -1,14 +1,24 @@
 import { AssetManager } from "./AssetManager";
 import { STAGE_HEIGHT } from "./Constants";
 import { STAGE_WIDTH } from "./Constants";
+import { Screens } from "./Screens";
 
 export class Player{
     
+    //states
+    public OPEN:number=0;
+    public INVINCIBLE:number=1;
+
+    public alive:boolean;
+
+    public state:number;
 
     //player character
     public _sprite:createjs.Sprite;
     private _speed:number;
 
+    //access to screens
+    public screens:Screens;
 
     private stage:createjs.StageGL;
 
@@ -27,12 +37,15 @@ export class Player{
 
     public Lives:number;
 
-    constructor(stage:createjs.StageGL, assetManager:AssetManager){
+    constructor(stage:createjs.StageGL, assetManager:AssetManager,screens:Screens){
         
+        this.screens=screens;
+        this.state=this.OPEN;
         this.Lives=4;
         this._speed=5;
-        this.Moving=false;
+        this.Moving=true;
         this.stage=stage;
+        this.alive=true;
 
         this._sprite= assetManager.getSprite("Sprites","Floating",0,0);
 
@@ -87,7 +100,7 @@ export class Player{
     public TakeAcidDam():void{
         this.Moving=false;
 
-        if(this.Lives<=0){this.AcidDie}
+        if(this.Lives<=0){this.AcidDie()}
         
         else {
             this.Lives=this.Lives-1;
@@ -101,43 +114,59 @@ export class Player{
     public AcidDie():void{
         this.Moving=false;
         this._sprite.gotoAndPlay("Acid");
-        this._sprite.on("animationend",this.Dead,this);
+        this._sprite.on("animationend",this.Dead,this, true);
+        this.alive=false;
     }
 
     public Dead():void{
-
         this.stage.removeChild(this._sprite);
+
+        //changing the game state
+        this.screens.GameState=Screens.LOSESCREEN;
+        this.screens.setScreen();
     }
 
     public TakeZapDam():void{
         
         this.Moving=false;
+        
+        if(this.Lives<=1){
+            
+            this.ZapDie();
+            createjs.Sound.play("Explosion");
+        }
 
-        if(this.Lives<=0){this.ZapDie}
         else {
+            
+            createjs.Sound.play("Damage");
 
             this.Lives=this.Lives-1;
-
+            console.log("ZAAAP"+this.Lives);
+            
             this._sprite.gotoAndPlay("Damage");
 
-            this._sprite.on("animationend",this.Calmdown,this);
+            //this.state=this.OPEN;
+
+            this._sprite.on("animationend",this.Calmdown,this,true);
         }
     }
 
     public Calmdown(){
         this._sprite.gotoAndPlay("Floating");
+        this.state=this.OPEN;
         
     }
 
     public ZapDie():void{
         this.Moving=false;
         this._sprite.gotoAndPlay("Shocked");
-        this._sprite.on("animationend",this.Dead,this);
-
+        this._sprite.on("animationend",this.Dead,this,true);
+        this.alive=false;
     }
 
-    public Heal():void{
-        
-        if (this.Lives<4){this.Lives++;}
-    }
+    // public Heal():void{
+    
+    //     createjs.Sound.play("Health");
+    //     if (this.Lives<4){this.Lives++;}
+    // }
 }

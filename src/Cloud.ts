@@ -54,6 +54,7 @@ export class Cloud{
     
     public Roulette():void{
         
+        
         this.roulette=this.roulette+1;
 
         if (this.roulette==1){

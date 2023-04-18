@@ -1,0 +1,25 @@
+{
+
+"images": [
+    "Screens.png"
+],
+
+"framerate": 30,
+"frames": [
+    [1, 1, 600, 600, 0, 0, 0],
+    [1, 603, 600, 600, 0, 0, 0],
+    [1, 1205, 600, 600, 0, 0, 0]
+],
+
+"animations": {
+    "Screen1": { "frames": [0] },
+    "Screen2": { "frames": [1] },
+    "Screen3": { "frames": [2] }
+},
+
+"texturepacker": [
+        "SmartUpdateHash: $TexturePacker:SmartUpdate:55e275240e26d9cdf5ccc0cf7486726a:6af46073e66f748e7b2de29c6913dd6f:2c8bc33d6a37f950c345398d7bbc1c44$",
+        "Created with TexturePacker (https://www.codeandweb.com/texturepacker) for EaselJS"
+]
+
+}
